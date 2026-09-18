@@ -1,6 +1,6 @@
 // Ultra-fast string processing cho text mode
-const SKIN_REGEX = /SKIN\s*:\s*(\d+)/gi;
-const BANNED_REGEX = /BAND\s*:\s*YES|BANNED/gi;
+const SKIN_REGEX = new RegExp('SKIN\\s*:\\s*(\\d+)', 'i');
+const BANNED_REGEX = new RegExp('(?:BAND\\s*:\\s*YES|BANNED)', 'i');
 
 // Hash function nhanh hơn Set thuần cho dedup lớn
 export function fastHash(str) {
@@ -61,12 +61,9 @@ export function processText(inputText, config) {
     }
     else if (filterMode === 'skin_rank') {
       const isBanned = BANNED_REGEX.test(line);
-      BANNED_REGEX.lastIndex = 0; // Reset regex state
-      
       if (excludeBanned && isBanned) {
         isMatch = false;
       } else {
-        SKIN_REGEX.lastIndex = 0;
         const skinMatch = SKIN_REGEX.exec(line);
         const skinCount = skinMatch ? parseInt(skinMatch[1], 10) : 0;
         isMatch = skinCount >= minSkin && skinCount <= maxSkin;

@@ -27,8 +27,8 @@ self.onmessage = async function(e) {
   };
   
   // Pre-compile regex — nhanh hơn match mỗi lần
-  const skinRegex = /SKIN\s*:\s*(\d+)/i;
-  const bannedRegex = /BAND\s*:\s*YES|BANNED/i;
+  const skinRegex = new RegExp('SKIN\\s*:\\s*(\\d+)', 'i');
+  const bannedRegex = new RegExp('(?:BAND\\s*:\\s*YES|BANNED)', 'i');
   const kw = caseSensitive ? keyword : keyword.toLowerCase();
   
   const startTime = performance.now();
