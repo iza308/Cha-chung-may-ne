@@ -149,6 +149,16 @@ export default function UltraFilter() {
     link.click();
     URL.revokeObjectURL(url);
   };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => setInputText(String(reader.result || ''));
+    reader.readAsText(file);
+    event.target.value = '';
+  };
   
   const formatBytes = (bytes) => {
     if (bytes === 0) return '0 Bytes';
@@ -159,11 +169,13 @@ export default function UltraFilter() {
   };
   
   return (
-    <div className="min-h-screen bg-[#1e1f22] text-gray-200 p-4 md:p-8">
+    <div className="app-shell min-h-screen bg-[#1e1f22] text-gray-200 p-4 md:p-8">
+      <div className="ambient ambient-one" aria-hidden="true" />
+      <div className="ambient ambient-two" aria-hidden="true" />
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#2b2d31] p-6 rounded-2xl border border-[#1e1f22]/50">
+        <div className="hero-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#2b2d31] p-6 rounded-2xl border border-[#1e1f22]/50">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2 py-1 text-xs font-bold bg-gradient-to-r from-[#5865F2] to-[#23a559] text-white rounded-md">

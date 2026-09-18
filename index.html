@@ -5,13 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ultra Filter — Siêu Bộ Lọc Dữ Liệu</title>
     <meta name="description" content="Web Worker + Streaming — xử lý file 10GB+ không treo tab" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body { background: #1e1f22; }
+      :root { color-scheme: light; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #f7f1e7; font-family: 'Be Vietnam Pro', sans-serif; }
+      .font-mono { font-family: 'IBM Plex Mono', monospace !important; }
+      .app-shell {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        color: #27322c !important;
+        background:
+          linear-gradient(rgba(61, 108, 82, .055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(61, 108, 82, .055) 1px, transparent 1px),
+          radial-gradient(circle at 8% 5%, #ffe2bd 0, transparent 26rem),
+          radial-gradient(circle at 94% 22%, #cde8d7 0, transparent 27rem),
+          #f7f1e7 !important;
+        background-size: 32px 32px, 32px 32px, auto, auto, auto;
+      }
+      .app-shell > .max-w-7xl { position: relative; z-index: 2; }
+      .ambient { position: absolute; z-index: 0; border-radius: 999px; pointer-events: none; opacity: .7; filter: blur(2px); }
+      .ambient-one { width: 210px; height: 210px; right: -65px; top: 42%; background: #f3ad92; animation: float 8s ease-in-out infinite; }
+      .ambient-two { width: 130px; height: 130px; left: -50px; top: 70%; border: 26px solid #83ad92; animation: float 10s ease-in-out infinite reverse; }
+      @keyframes float { 50% { transform: translateY(-18px) rotate(8deg); } }
+      @media (prefers-reduced-motion: reduce) { .ambient { animation: none; } }
+
+      .app-shell [class*="bg-[#2b2d31]"] {
+        background: rgba(255, 253, 248, .9) !important;
+        border-color: rgba(61, 108, 82, .16) !important;
+        box-shadow: 0 18px 45px rgba(62, 72, 58, .09), 0 2px 8px rgba(62, 72, 58, .05);
+        backdrop-filter: blur(12px);
+      }
+      .app-shell .hero-card {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(115deg, #fffaf0 0%, #fffdf8 56%, #e5f1e8 100%) !important;
+        border: 1px solid rgba(61, 108, 82, .18) !important;
+      }
+      .hero-card::after { content: ''; position: absolute; right: 18%; top: -70px; width: 150px; height: 150px; border: 24px solid rgba(223, 116, 82, .12); border-radius: 50%; pointer-events: none; }
+      .app-shell [class*="bg-[#1e1f22]"] { background-color: #f2eadf !important; }
+      .app-shell textarea, .app-shell input[type="text"], .app-shell input[type="number"], .app-shell select {
+        color: #26342d !important;
+        background: #fbf7ef !important;
+        border: 1px solid #dfd5c6 !important;
+      }
+      .app-shell textarea:focus, .app-shell input:focus, .app-shell select:focus { border-color: #de7555 !important; box-shadow: 0 0 0 3px rgba(222, 117, 85, .12); }
+      .app-shell textarea::placeholder { color: #9b9488 !important; }
+      .app-shell .text-white, .app-shell [class*="text-gray-200"], .app-shell [class*="text-gray-300"] { color: #26342d !important; }
+      .app-shell [class*="text-gray-400"] { color: #68756d !important; }
+      .app-shell [class*="text-gray-600"] { color: #a09a8f !important; }
+      .app-shell [class*="border-[#1e1f22]"] { border-color: rgba(61, 108, 82, .14) !important; }
+      .app-shell [class*="bg-[#5865F2]"] { background: #dd7555 !important; }
+      .app-shell [class*="text-[#5865F2]"] { color: #d86645 !important; }
+      .app-shell [class*="border-[#5865F2]"] { border-color: #dd7555 !important; }
+      .app-shell [class*="bg-[#23a559]"] { background-color: #477b5b !important; }
+      .app-shell [class*="text-[#23a559]"] { color: #36704d !important; }
+      .app-shell [class*="border-[#23a559]"] { border-color: rgba(54, 112, 77, .35) !important; }
+      .app-shell [class*="bg-[#faa61a]"] { background-color: rgba(229, 161, 70, .13) !important; }
+      .app-shell [class*="text-[#faa61a]"] { color: #b56c18 !important; }
+      .app-shell button { letter-spacing: -.01em; }
+      .app-shell button:not(:disabled):hover { transform: translateY(-1px); }
+      .app-shell button:focus-visible { outline: 3px solid rgba(222, 117, 85, .3); outline-offset: 2px; }
+      .app-shell input[type="checkbox"] { accent-color: #dd7555; }
       ::-webkit-scrollbar { width: 8px; height: 8px; }
-      ::-webkit-scrollbar-track { background: #1e1f22; }
-      ::-webkit-scrollbar-thumb { background: #2b2d31; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #35363c; }
+      ::-webkit-scrollbar-track { background: #eee5d8; }
+      ::-webkit-scrollbar-thumb { background: #91aa99; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #63826d; }
     </style>
   </head>
   <body>
